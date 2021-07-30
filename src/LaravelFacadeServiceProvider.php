@@ -21,32 +21,10 @@ class LaravelFacadeServiceProvider extends ServiceProvider
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
+            $this->commands([
+
+            ]);
         }
-    }
-
-    /**
-     * Register any package services.
-     *
-     * @return void
-     */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(__DIR__.'/../config/laravel-facade.php', 'laravel-facade');
-
-        // Register the service the package provides.
-        $this->app->singleton('laravel-facade', function ($app) {
-            return new LaravelFacade;
-        });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['laravel-facade'];
     }
 
     /**
@@ -78,5 +56,30 @@ class LaravelFacadeServiceProvider extends ServiceProvider
 
         // Registering package commands.
         // $this->commands([]);
+    }
+
+    /**
+     * Register any package services.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/laravel-facade.php', 'laravel-facade');
+
+        // Register the service the package provides.
+        $this->app->singleton('laravel-facade', function ($app) {
+            return new LaravelFacade;
+        });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['laravel-facade'];
     }
 }
