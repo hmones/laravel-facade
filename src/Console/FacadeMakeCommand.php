@@ -47,9 +47,9 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        $name = $this->qualifyClass($this->getNameInput());
+        $facadeName = $this->qualifyClass($this->getNameInput());
 
-        $path = $this->getPath($name);
+        $path = $this->getPath($facadeName);
 
         // Next, We will check to see if the class already exists. If it does, we don't want
         // to create the class and overwrite the user's code. So, we will bail out so the
