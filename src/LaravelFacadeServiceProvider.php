@@ -2,6 +2,7 @@
 
 namespace Hmones\LaravelFacade;
 
+use Illuminate\Routing\Console\FacadeMakeCommand;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelFacadeServiceProvider extends ServiceProvider
@@ -21,9 +22,6 @@ class LaravelFacadeServiceProvider extends ServiceProvider
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
-            $this->commands([
-
-            ]);
         }
     }
 
@@ -36,7 +34,7 @@ class LaravelFacadeServiceProvider extends ServiceProvider
     {
         // Publishing the configuration file.
         $this->publishes([
-            __DIR__.'/../config/laravel-facade.php' => config_path('laravel-facade.php'),
+            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
         ], 'laravel-facade.config');
 
         // Publishing the views.
@@ -55,7 +53,9 @@ class LaravelFacadeServiceProvider extends ServiceProvider
         ], 'laravel-facade.views');*/
 
         // Registering package commands.
-        // $this->commands([]);
+        $this->commands([
+            FacadeMakeCommand::class
+        ]);
     }
 
     /**
@@ -65,7 +65,7 @@ class LaravelFacadeServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/laravel-facade.php', 'laravel-facade');
+        $this->mergeConfigFrom(__DIR__ . '/../config/laravel-facade.php', 'laravel-facade');
 
         // Register the service the package provides.
         $this->app->singleton('laravel-facade', function ($app) {
