@@ -1,12 +1,17 @@
 {
     "name": "hmones/laravel-facade",
-    "description": ":package_description",
-    "license": "license",
+    "description": "Generates facades in your laravel project with one simple command.",
+    "license": "MIT",
     "authors": [
         {
-            "name": "author name",
-            "email": "author email",
-            "homepage": "author homepage"
+            "name": "Haytahm Mones",
+            "email": "hello@haytham.me",
+            "homepage": "https://www.haythammones.com"
+        },
+        {
+            "name": "Maab Javaid",
+            "email": "maabjavaid9@gmail.com",
+            "homepage": "#"
         }
     ],
     "homepage": "https://github.com/hmones/laravel-facade",
