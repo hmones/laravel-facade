@@ -67,7 +67,7 @@ class FacadeMakeCommand extends GeneratorCommand
         // stub files so that it gets the correctly formatted namespace and class name.
         $this->makeDirectory($path);
 
-        $this->files->put($path, $this->buildClass($name));
+        $this->files->put($path, $this->buildClass($facadeName));
 
         $this->info($this->type . ' created successfully.');
     }
@@ -80,9 +80,21 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
-        $stub = parent::buildClass($name);
+        $stub = $this->files->get($this->getStub());
+
+        $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
 
         return $this->replaceFacadeName($stub, $name);
+    }
+
+    /**
+     * Get the stub file for the generator.
+     *
+     * @return string
+     */
+    protected function getStub(): string
+    {
+        return '/stubs/facade.stub';
     }
 
     /**
@@ -110,16 +122,6 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function getAccessorName($name): string
     {
         return (string)Str::slug($name);
-    }
-
-    /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub(): string
-    {
-        return '/stubs/facade.stub';
     }
 
     /**
