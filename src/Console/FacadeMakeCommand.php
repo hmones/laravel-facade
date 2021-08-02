@@ -1,9 +1,8 @@
 <?php
 
-namespace Illuminate\Routing\Console;
+namespace Hmones\LaravelFacade\Console;
 
 use Illuminate\Console\GeneratorCommand;
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class FacadeMakeCommand extends GeneratorCommand
@@ -38,22 +37,19 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     public function handle(): void
     {
-        // First we need to ensure that the given name is not a reserved word within the PHP
-        // language and that the class name will actually be valid. If it is not valid we
-        // can error now and prevent from polluting the filesystem using invalid files.
+
         if ($this->isReservedName($this->getNameInput())) {
             $this->error('The name "' . $this->getNameInput() . '" is reserved by PHP.');
 
             return;
         }
 
-        $facadeName = $this->qualifyClass($this->getNameInput());
+        $facadeName = $this->getNameInput();
 
-        $path = $this->getPath($facadeName);
+        $facadeNameSpace = $this->qualifyClass($facadeName);
 
-        // Next, We will check to see if the class already exists. If it does, we don't want
-        // to create the class and overwrite the user's code. So, we will bail out so the
-        // code is untouched. Otherwise, we will continue generating this class' files.
+        $path = $this->getPath($facadeNameSpace);
+
         if ((!$this->hasOption('force') ||
                 !$this->option('force')) &&
             $this->alreadyExists($this->getNameInput())) {
@@ -62,12 +58,11 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        // Next, we will generate the path to the location where this class' file should get
-        // written. Then, we will build the class and make the proper replacements on the
-        // stub files so that it gets the correctly formatted namespace and class name.
         $this->makeDirectory($path);
 
-        $this->files->put($path, $this->buildClass($facadeName));
+        $this->files->put($path, $this->generateClass($facadeName, $facadeNameSpace));
+
+        $this->publishServiceProvider();
 
         $this->info($this->type . ' created successfully.');
     }
@@ -78,11 +73,13 @@ class FacadeMakeCommand extends GeneratorCommand
      * @param string $name
      * @return string
      */
-    protected function buildClass($name)
+    protected function generateClass($name, $nameSpace)
     {
         $stub = $this->files->get($this->getStub());
 
-        $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
+        $this->replaceNamespace($stub, $nameSpace);
+
+        $stub = $this->replaceClass($stub, $name);
 
         return $this->replaceFacadeName($stub, $name);
     }
@@ -94,7 +91,7 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getStub(): string
     {
-        return '/stubs/facade.stub';
+        return __DIR__ . '/stubs/facade.stub';
     }
 
     /**
@@ -108,20 +105,50 @@ class FacadeMakeCommand extends GeneratorCommand
     {
         return str_replace(
             '{{ facadeName }}',
-            $this->getAccessorName($name),
+            $name,
             $stub
         );
     }
 
-    /**
-     * Get the facade accessor name from the facade name
-     *
-     * @param string $name
-     * @return $this
-     */
-    protected function getAccessorName($name): string
+    protected function publishServiceProvider(): void
     {
-        return (string)Str::slug($name);
+        $path = 'Providers\FacadeServiceProvider.php';
+        if (!$this->files->exists(app_path($path))) {
+            $this->createServiceProvider($path);
+            $this->updateAppConfig('App\Providers\FacadeServiceProvider::class');
+        }
+    }
+
+    /**
+     * Create service provider file
+     *
+     * @param string $path
+     * @return void
+     */
+    protected function createServiceProvider($path): void
+    {
+        $this->files->put(app_path($path), file_get_contents(__DIR__ . '/../' . $path));
+    }
+
+    /**
+     * Update the app configuration file to include the service provider
+     *
+     * @param string $class
+     * @return void
+     */
+    protected function updateAppConfig($class): void
+    {
+        $appConfig = file_get_contents(config_path('app.php'));
+
+        if (preg_match($class, $appConfig)) {
+
+            return;
+        }
+
+        $pattern = '/(\'providers\'\s.*?=>\s.*?\[[^\]]*)(class\,?\n?.*)(\],)/';
+        $replacement = 'class,' . PHP_EOL . '        ' . $class . ',' . PHP_EOL;
+        $appConfig = preg_replace($pattern, '$1' . $replacement . '$3', $appConfig);
+        $this->files->put(config_path('app'), $appConfig);
     }
 
     /**

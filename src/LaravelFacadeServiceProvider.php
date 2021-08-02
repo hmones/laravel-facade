@@ -2,7 +2,7 @@
 
 namespace Hmones\LaravelFacade;
 
-use Illuminate\Routing\Console\FacadeMakeCommand;
+use Hmones\LaravelFacade\Console\FacadeMakeCommand;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelFacadeServiceProvider extends ServiceProvider
@@ -33,19 +33,20 @@ class LaravelFacadeServiceProvider extends ServiceProvider
     protected function bootForConsole(): void
     {
         // Publishing the configuration file.
-        $this->publishes([
-            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
-        ], 'laravel-facade.config');
+//        $this->publishes([
+//            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
+//        ], 'laravel-facade.config');
 
         // Publishing the views.
         /*$this->publishes([
             __DIR__.'/../resources/views' => base_path('resources/views/vendor/hmones'),
         ], 'laravel-facade.views');*/
 
+//        dd(__DIR__ . '/Providers/FacadeServiceProvider.php', app_path('Providers'));
         // Publishing assets.
-        /*$this->publishes([
-            __DIR__.'/../resources/assets' => public_path('vendor/hmones'),
-        ], 'laravel-facade.views');*/
+        $this->publishes([
+            __DIR__ . '/Providers/FacadeServiceProvider.php' => app_path('Providers/FacadeServiceProvider.php'),
+        ], 'laravel-facade-provider');
 
         // Publishing the translation files.
         /*$this->publishes([
