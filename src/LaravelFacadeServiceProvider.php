@@ -14,12 +14,6 @@ class LaravelFacadeServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'hmones');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'hmones');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
-
-        // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
         }
@@ -37,23 +31,10 @@ class LaravelFacadeServiceProvider extends ServiceProvider
 //            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
 //        ], 'laravel-facade.config');
 
-        // Publishing the views.
-        /*$this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/hmones'),
-        ], 'laravel-facade.views');*/
-
-//        dd(__DIR__ . '/Providers/FacadeServiceProvider.php', app_path('Providers'));
-        // Publishing assets.
         $this->publishes([
             __DIR__ . '/Providers/FacadeServiceProvider.php' => app_path('Providers/FacadeServiceProvider.php'),
         ], 'laravel-facade-provider');
 
-        // Publishing the translation files.
-        /*$this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/hmones'),
-        ], 'laravel-facade.views');*/
-
-        // Registering package commands.
         $this->commands([
             FacadeMakeCommand::class
         ]);
@@ -68,7 +49,6 @@ class LaravelFacadeServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laravel-facade.php', 'laravel-facade');
 
-        // Register the service the package provides.
         $this->app->singleton('laravel-facade', function ($app) {
             return new LaravelFacade;
         });
