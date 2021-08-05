@@ -9,6 +9,8 @@ use Symfony\Component\Console\Input\InputOption;
 class FacadeMakeCommand extends GeneratorCommand
 {
     protected const SERVICE_PROVIDER_PATH = 'Providers/FacadeServiceProvider.php';
+    protected const SERVICE_PROVIDER_CLASS = 'App\Providers\FacadeServiceProvider::class';
+    protected const SERVICE_PROVIDER_CLASS_NAME = 'FacadeServiceProvider::class';
 
     /**
      * The console command name.
@@ -55,25 +57,10 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        $facadeNameSpace = $this->qualifyClass($facadeName);
-
-        $facadePath = $this->getPath($facadeNameSpace);
-
-        if ((!$this->hasOption('force') ||
-                !$this->option('force')) &&
-            $this->alreadyExists($this->getNameInput())) {
-            $this->error($this->type . ' already exists!');
-
-            return;
+        if ($this->createFacade($facadeName)) {
+            $this->configureFacade();
+            $this->info($this->type . ' created successfully.');
         }
-
-        $this->makeDirectory($facadePath);
-
-        $this->files->put($facadePath, $this->generateClass($facadeName, $facadeNameSpace));
-
-        $this->configureFacade();
-
-        $this->info($this->type . ' created successfully.');
     }
 
     /**
@@ -83,7 +70,33 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getClassInput()
     {
-        return trim($this->argument('class'));
+        return trim($this->argument('class namespace'));
+    }
+
+    /**
+     * Create the Facade file if it doesn't exist
+     *
+     * @param $name
+     * @return void
+     */
+    protected function createFacade(string $name): bool
+    {
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->alreadyExists($this->getNameInput())) {
+            $this->error($this->type . ' already exists!');
+
+            return false;
+        }
+
+        $nameSpace = $this->qualifyClass($name);
+        $path = $this->getPath($nameSpace);
+
+        $this->makeDirectory($path);
+
+        $this->files->put($path, $this->generateClass($name, $nameSpace));
+
+        return true;
     }
 
     /**
@@ -132,6 +145,7 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function configureFacade(): void
     {
         $this->createServiceProvider();
+        $this->updateAppConfig();
         $this->updateServiceProvider();
     }
 
@@ -148,7 +162,6 @@ class FacadeMakeCommand extends GeneratorCommand
         }
 
         $this->files->copy(__DIR__ . '/../' . self::SERVICE_PROVIDER_PATH, app_path(self::SERVICE_PROVIDER_PATH));
-        $this->updateAppConfig();
     }
 
     /**
@@ -158,20 +171,25 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function updateAppConfig(): void
     {
-        $class = 'App\Providers\FacadeServiceProvider::class';
-        $className = 'FacadeServiceProvider::class';
-
         $appConfig = file_get_contents(config_path('app.php'));
 
-        if (preg_match("/{$className}/", $appConfig)) {
+        if (preg_match('/' . self::SERVICE_PROVIDER_CLASS_NAME . '/', $appConfig)) {
 
             return;
         }
 
-        $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class?,)(\s*\],)/';
-        $replacement = 'class,' . PHP_EOL . "\t\t{$class}," . PHP_EOL;
+        $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class[,]?)(\s*\],)/';
+        $replacement = "class,\n\t\t" . self::SERVICE_PROVIDER_CLASS . ",\n";
         $appConfig = preg_replace($pattern, '$1' . $replacement . '$3', $appConfig);
+
+        if (!preg_match('/' . self::SERVICE_PROVIDER_CLASS_NAME . '/', $appConfig)) {
+            $this->warn('Failed to register service provider in app.config, please add it manually.');
+
+            return;
+        }
+
         $this->files->put(config_path('app.php'), $appConfig);
+        $this->info('The FacadeServiceProvider has been successfully added to your app configuration');
     }
 
     /**
@@ -231,7 +249,7 @@ class FacadeMakeCommand extends GeneratorCommand
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the class'],
-            ['class', InputArgument::REQUIRED, 'The name of the class the facade will implement'],
+            ['class namespace', InputArgument::REQUIRED, 'The namespace of the class the facade will implement'],
         ];
     }
 }
