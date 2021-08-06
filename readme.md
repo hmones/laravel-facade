@@ -53,12 +53,11 @@ license. Please see the [license file](license.md) for more information.
 [ico-version]: https://img.shields.io/packagist/v/hmones/laravel-facade.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/hmones/laravel-facade.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/hmones/laravel-facade/master.svg?style=flat-square
-[ico-styleci]: https://styleci.io/repos/12345678/shield
-
+[ico-styleci]: https://github.styleci.io/repos/390311402/shield?branch=master
 [link-packagist]: https://packagist.org/packages/hmones/laravel-facade
 [link-downloads]: https://packagist.org/packages/hmones/laravel-facade
 [link-travis]: https://travis-ci.org/hmones/laravel-facade
-[link-styleci]: https://styleci.io/repos/12345678
+[link-styleci]: https://github.styleci.io/repos/390311402?branch=master
 [link-author]: https://github.com/hmones
 [link-author2]: https://github.com/mabjavaid
 [link-contributors]: ../../contributors
