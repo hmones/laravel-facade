@@ -1,11 +1,11 @@
-# LaravelFacade
+# Laravel Facade
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 [![Build Status][ico-travis]][link-travis]
 [![StyleCI][ico-styleci]][link-styleci]
 
-This is where your description should go. Take a look at [contributing.md](contributing.md) to see a to do list.
+This package makes the process of creating facades in laravel super easy and with one simple artisan command.
 
 ## Installation
 
@@ -16,6 +16,11 @@ $ composer require hmones/laravel-facade --dev
 ```
 
 ## Usage
+
+To create a new Facade for your class you can simply use the following command
+```
+php artisan make:facade FacadeName ImplementationClassNameSpace
+ ```
 
 ## Change log
 
@@ -37,7 +42,8 @@ If you discover any security related issues, please email author email instead o
 
 ## Credits
 
-- [author name][link-author]
+- [Maab Javid][link-author2]
+- [Haytham Mones][link-author]
 - [All Contributors][link-contributors]
 
 ## License
@@ -54,4 +60,5 @@ license. Please see the [license file](license.md) for more information.
 [link-travis]: https://travis-ci.org/hmones/laravel-facade
 [link-styleci]: https://styleci.io/repos/12345678
 [link-author]: https://github.com/hmones
+[link-author2]: https://github.com/mabjavaid
 [link-contributors]: ../../contributors
