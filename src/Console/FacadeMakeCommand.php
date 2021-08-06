@@ -9,8 +9,10 @@ use Symfony\Component\Console\Input\InputOption;
 class FacadeMakeCommand extends GeneratorCommand
 {
     protected const SERVICE_PROVIDER_PATH = 'Providers/FacadeServiceProvider.php';
-    protected const SERVICE_PROVIDER_CLASS = 'App\Providers\FacadeServiceProvider::class';
-    protected const SERVICE_PROVIDER_CLASS_NAME = 'FacadeServiceProvider::class';
+
+    protected $stubType = 'class';
+
+    protected $facadeName, $implementedClass;
 
     /**
      * The console command name.
@@ -42,22 +44,22 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     public function handle(): void
     {
-        $facadeName = $this->getNameInput();
-        $implementedClass = $this->getClassInput();
+        $this->facadeName = $this->getNameInput();
+        $this->implementedClass = $this->getClassInput();
 
-        if ($this->isReservedName($facadeName) || $this->isReservedName($implementedClass)) {
-            $this->error("The name '{$facadeName}' or '{$implementedClass}' is reserved by PHP.");
-
-            return;
-        }
-
-        if (!class_exists($implementedClass)) {
-            $this->error("The class '{$implementedClass}' does not exist, please create it first.");
+        if ($this->isReservedName($this->facadeName)) {
+            $this->error("The name '{$this->facadeName}' is reserved by PHP.");
 
             return;
         }
 
-        if ($this->createFacade($facadeName)) {
+        if (!class_exists($this->implementedClass)) {
+            $this->error("The class '{$this->implementedClass}' does not exist, please create it first.");
+
+            return;
+        }
+
+        if ($this->createFacade($this->facadeName)) {
             $this->configureFacade();
             $this->info($this->type . ' created successfully.');
         }
@@ -93,8 +95,8 @@ class FacadeMakeCommand extends GeneratorCommand
         $path = $this->getPath($nameSpace);
 
         $this->makeDirectory($path);
-
-        $this->files->put($path, $this->generateClass($name, $nameSpace));
+        $this->stubType = 'class';
+        $this->files->put($path, $this->generateStub($name, $nameSpace));
 
         return true;
     }
@@ -102,18 +104,21 @@ class FacadeMakeCommand extends GeneratorCommand
     /**
      * Build the class with the given name.
      *
-     * @param string $name
+     * @param string $className
+     * @param string $nameSpace
      * @return string
      */
-    protected function generateClass($name, $nameSpace)
+    protected function generateStub($className, $nameSpace)
     {
         $stub = $this->files->get($this->getStub());
 
         $this->replaceNamespace($stub, $nameSpace);
 
-        $stub = $this->replaceClass($stub, $name);
+        $stub = $this->type === 'class'
+            ? $this->replaceClass($stub, $className)
+            : $this->replaceImplementedClass($stub, $nameSpace);
 
-        return $this->replaceFacadeName($stub, $name);
+        return $this->replaceFacadeName($stub, $className);
     }
 
     /**
@@ -123,7 +128,23 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getStub(): string
     {
-        return __DIR__ . '/stubs/facade.stub';
+        return $this->stubType === 'class' ? __DIR__ . '/stubs/facade.stub' : __DIR__ . '/stubs/binding.stub';
+    }
+
+    /**
+     * Replace the namespace of the implamented class for the given stub.
+     *
+     * @param string $stub
+     * @param string $name
+     * @return string
+     */
+    protected function replaceImplementedClass($stub, $name)
+    {
+        return str_replace(
+            '{{ implementedClass }}',
+            $name,
+            $stub
+        );
     }
 
     /**
@@ -144,9 +165,34 @@ class FacadeMakeCommand extends GeneratorCommand
 
     protected function configureFacade(): void
     {
-        $this->createServiceProvider();
-        $this->updateAppConfig();
+        $this->comment('Publishing Facade Service Provider...');
+        $this->callSilent('vendor:publish', ['--tag' => 'laravel-facade-provider']);
+        $this->comment('Updating Facade Service Provider...');
         $this->updateServiceProvider();
+    }
+
+    /**
+     * Update service provider by instantiating the implementation class
+     *
+     * @return void
+     */
+    protected function updateServiceProvider(): void
+    {
+        $serviceProvider = $this->files->get(app_path(self::SERVICE_PROVIDER_PATH));
+
+        if (preg_match("/{$this->implementedClass}/", $serviceProvider)) {
+
+            return;
+        }
+
+        $this->stubType = 'binding';
+        $replacement = $this->generateStub($this->facadeName, $this->implementedClass);
+        $pattern = '/(boot\s*\([^\)]*\)\s*:.*\s*)(?<body>\{(?:[^{}]+|(?&body))*(\}))/';
+        preg_match($pattern, $serviceProvider, $bootMethod);
+        $bootMethod = substr($bootMethod[0], 0, -1);
+        $replacement = $bootMethod . $replacement;
+        $serviceProvider = preg_replace($pattern, $replacement, $serviceProvider);
+        $this->files->put(app_path(self::SERVICE_PROVIDER_PATH), $serviceProvider);
     }
 
     /**
@@ -162,59 +208,6 @@ class FacadeMakeCommand extends GeneratorCommand
         }
 
         $this->files->copy(__DIR__ . '/../' . self::SERVICE_PROVIDER_PATH, app_path(self::SERVICE_PROVIDER_PATH));
-    }
-
-    /**
-     * Update the app configuration file to include the service provider
-     *
-     * @return void
-     */
-    protected function updateAppConfig(): void
-    {
-        $appConfig = file_get_contents(config_path('app.php'));
-
-        if (preg_match('/' . self::SERVICE_PROVIDER_CLASS_NAME . '/', $appConfig)) {
-
-            return;
-        }
-
-        $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class[,]?)(\s*\],)/';
-        $replacement = "class,\n\t\t" . self::SERVICE_PROVIDER_CLASS . ",\n";
-        $appConfig = preg_replace($pattern, '$1' . $replacement . '$3', $appConfig);
-
-        if (!preg_match('/' . self::SERVICE_PROVIDER_CLASS_NAME . '/', $appConfig)) {
-            $this->warn('Failed to register service provider in app.config, please add it manually.');
-
-            return;
-        }
-
-        $this->files->put(config_path('app.php'), $appConfig);
-        $this->info('The FacadeServiceProvider has been successfully added to your app configuration');
-    }
-
-    /**
-     * Update service provider by instantiating the implementation class
-     *
-     * @return void
-     */
-    protected function updateServiceProvider(): void
-    {
-        $serviceProvider = file_get_contents(app_path(self::SERVICE_PROVIDER_PATH));
-        $implementedClass = $this->getClassInput();
-        $facadeName = $this->getNameInput();
-
-        if (preg_match("/{$implementedClass}/", $serviceProvider)) {
-
-            return;
-        }
-
-        $replacement = "\t\$this->app->bind('{$facadeName}',function(){return resolve('{$implementedClass}');});\n\t}";
-        $pattern = '/(boot\s*\([^\)]*\)\s*:.*\s*)(?<body>\{(?:[^{}]+|(?&body))*(\}))/';
-        preg_match($pattern, $serviceProvider, $bootMethod);
-        $bootMethod = substr($bootMethod[0], 0, -1);
-        $replacement = $bootMethod . $replacement;
-        $serviceProvider = preg_replace($pattern, $replacement, $serviceProvider);
-        $this->files->put(app_path(self::SERVICE_PROVIDER_PATH), $serviceProvider);
     }
 
     /**
