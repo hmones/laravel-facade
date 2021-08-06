@@ -26,10 +26,9 @@ class LaravelFacadeServiceProvider extends ServiceProvider
      */
     protected function bootForConsole(): void
     {
-        // Publishing the configuration file.
-//        $this->publishes([
-//            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
-//        ], 'laravel-facade.config');
+        $this->publishes([
+            __DIR__ . '/../config/laravel-facade.php' => config_path('laravel-facade.php'),
+        ], 'laravel-facade-config');
 
         $this->publishes([
             __DIR__ . '/Providers/FacadeServiceProvider.php' => app_path('Providers/FacadeServiceProvider.php'),
@@ -48,10 +47,6 @@ class LaravelFacadeServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laravel-facade.php', 'laravel-facade');
-
-        $this->app->singleton('laravel-facade', function ($app) {
-            return new LaravelFacade;
-        });
     }
 
     /**
@@ -61,6 +56,8 @@ class LaravelFacadeServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['laravel-facade'];
+        return [
+            FacadeMakeCommand::class
+        ];
     }
 }

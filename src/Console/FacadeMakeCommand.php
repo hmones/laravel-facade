@@ -114,7 +114,7 @@ class FacadeMakeCommand extends GeneratorCommand
 
         $this->replaceNamespace($stub, $nameSpace);
 
-        $stub = $this->type === 'class'
+        $stub = $this->stubType === 'class'
             ? $this->replaceClass($stub, $className)
             : $this->replaceImplementedClass($stub, $nameSpace);
 
@@ -167,8 +167,31 @@ class FacadeMakeCommand extends GeneratorCommand
     {
         $this->comment('Publishing Facade Service Provider...');
         $this->callSilent('vendor:publish', ['--tag' => 'laravel-facade-provider']);
+        $this->updateAppConfig();
         $this->comment('Updating Facade Service Provider...');
         $this->updateServiceProvider();
+    }
+
+    /**
+     * Update the app configuration file to include the service provider
+     *
+     * @return void
+     */
+    protected function updateAppConfig(): void
+    {
+        $class = 'App\Providers\FacadeServiceProvider::class';
+        $className = 'FacadeServiceProvider::class';
+
+        $appConfig = $this->files->get(config_path('app.php'));
+
+        if (preg_match("/{$className}/", $appConfig)) {
+
+            return;
+        }
+
+        $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class?,)(\s*\],)/';
+        $appConfig = preg_replace($pattern, '$1' . "class,\n\t\t{$class},\n" . '$3', $appConfig);
+        $this->files->put(config_path('app.php'), $appConfig);
     }
 
     /**
