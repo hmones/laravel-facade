@@ -186,7 +186,6 @@ class FacadeMakeCommand extends GeneratorCommand
         $appConfig = $this->files->get(config_path('app.php'));
 
         if (preg_match("/{$className}/", $appConfig)) {
-
             return;
         }
 
@@ -205,7 +204,6 @@ class FacadeMakeCommand extends GeneratorCommand
         $serviceProvider = $this->files->get(app_path(self::SERVICE_PROVIDER_PATH));
 
         if (preg_match("/{$this->implementedClass}/", $serviceProvider)) {
-
             return;
         }
 
@@ -227,7 +225,6 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function createServiceProvider(): void
     {
         if ($this->files->exists(app_path(self::SERVICE_PROVIDER_PATH))) {
-
             return;
         }
 
