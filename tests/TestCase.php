@@ -3,8 +3,9 @@
 namespace Hmones\LaravelFacade\Tests;
 
 use Hmones\LaravelFacade\LaravelFacadeServiceProvider;
+use Orchestra\Testbench\TestCase as Test;
 
-class TestCase extends \Orchestra\Testbench\TestCase
+class TestCase extends Test
 {
     public function setUp(): void
     {
@@ -16,10 +17,5 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             LaravelFacadeServiceProvider::class,
         ];
-    }
-
-    protected function getEnvironmentSetUp($app)
-    {
-        // perform environment setup
     }
 }
