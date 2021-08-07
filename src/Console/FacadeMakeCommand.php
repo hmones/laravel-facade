@@ -12,7 +12,8 @@ class FacadeMakeCommand extends GeneratorCommand
 
     protected $stubType = 'class';
 
-    protected $facadeName, $implementedClass;
+    protected $facadeName;
+    protected $implementedClass;
 
     /**
      * The console command name.
@@ -53,7 +54,7 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        if (!class_exists($this->implementedClass)) {
+        if (! class_exists($this->implementedClass)) {
             $this->error("The class '{$this->implementedClass}' does not exist, please create it first.");
 
             return;
@@ -61,7 +62,7 @@ class FacadeMakeCommand extends GeneratorCommand
 
         if ($this->createFacade($this->facadeName)) {
             $this->configureFacade();
-            $this->info($this->type . ' created successfully.');
+            $this->info($this->type.' created successfully.');
         }
     }
 
@@ -76,17 +77,17 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Create the Facade file if it doesn't exist
+     * Create the Facade file if it doesn't exist.
      *
      * @param $name
      * @return void
      */
     protected function createFacade(string $name): bool
     {
-        if ((!$this->hasOption('force') ||
-                !$this->option('force')) &&
+        if ((! $this->hasOption('force') ||
+                ! $this->option('force')) &&
             $this->alreadyExists($this->getNameInput())) {
-            $this->error($this->type . ' already exists!');
+            $this->error($this->type.' already exists!');
 
             return false;
         }
@@ -128,7 +129,7 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getStub(): string
     {
-        return $this->stubType === 'class' ? __DIR__ . '/stubs/facade.stub' : __DIR__ . '/stubs/binding.stub';
+        return $this->stubType === 'class' ? __DIR__.'/stubs/facade.stub' : __DIR__.'/stubs/binding.stub';
     }
 
     /**
@@ -173,7 +174,7 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Update the app configuration file to include the service provider
+     * Update the app configuration file to include the service provider.
      *
      * @return void
      */
@@ -190,12 +191,12 @@ class FacadeMakeCommand extends GeneratorCommand
         }
 
         $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class?,)(\s*\],)/';
-        $appConfig = preg_replace($pattern, '$1' . "class,\n\t\t{$class},\n" . '$3', $appConfig);
+        $appConfig = preg_replace($pattern, '$1'."class,\n\t\t{$class},\n".'$3', $appConfig);
         $this->files->put(config_path('app.php'), $appConfig);
     }
 
     /**
-     * Update service provider by instantiating the implementation class
+     * Update service provider by instantiating the implementation class.
      *
      * @return void
      */
@@ -213,13 +214,13 @@ class FacadeMakeCommand extends GeneratorCommand
         $pattern = '/(boot\s*\([^\)]*\)\s*:.*\s*)(?<body>\{(?:[^{}]+|(?&body))*(\}))/';
         preg_match($pattern, $serviceProvider, $bootMethod);
         $bootMethod = substr($bootMethod[0], 0, -1);
-        $replacement = $bootMethod . $replacement;
+        $replacement = $bootMethod.$replacement;
         $serviceProvider = preg_replace($pattern, $replacement, $serviceProvider);
         $this->files->put(app_path(self::SERVICE_PROVIDER_PATH), $serviceProvider);
     }
 
     /**
-     * Create service provider file
+     * Create service provider file.
      *
      * @return void
      */
@@ -230,7 +231,7 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        $this->files->copy(__DIR__ . '/../' . self::SERVICE_PROVIDER_PATH, app_path(self::SERVICE_PROVIDER_PATH));
+        $this->files->copy(__DIR__.'/../'.self::SERVICE_PROVIDER_PATH, app_path(self::SERVICE_PROVIDER_PATH));
     }
 
     /**
@@ -241,7 +242,7 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\Facades';
+        return $rootNamespace.'\Facades';
     }
 
     /**
@@ -252,7 +253,7 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function getOptions(): array
     {
         return [
-            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the facade already exists']
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the facade already exists'],
         ];
     }
 
