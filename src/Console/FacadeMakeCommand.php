@@ -165,7 +165,7 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Configure Laravel Facade
+     * Configure Laravel Facade.
      *
      * @return void
      * @throws FileNotFoundException
