@@ -1,10 +1,10 @@
 <?php
 
-namespace Hmones\LaravelFacade\Facades;
+namespace {{ namespace }};
 
 use Illuminate\Support\Facades\Facade;
 
-class LaravelFacade extends Facade
+class {{ class }} extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -13,6 +13,6 @@ class LaravelFacade extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'laravel-facade';
+        return '{{ facadeName }}';
     }
 }

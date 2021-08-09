@@ -1,0 +1,5 @@
+    $this->app->bind('{{ facadeName }}', function () {
+            return resolve('{{ implementedClass }}');
+        });
+
+    }
