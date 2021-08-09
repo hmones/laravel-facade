@@ -178,8 +178,8 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function updateAppConfig(): void
     {
-        $className = config('laravel-facade.provider.name') .  '::class';
-        $class = config('laravel-facade.provider.namespace') . '\\' . $className;
+        $className = config('laravel-facade.provider.name').'::class';
+        $class = config('laravel-facade.provider.namespace').'\\'. $className;
 
         $appConfig = $this->files->get(config_path('app.php'));
 
@@ -255,9 +255,9 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getProviderPath(): string
     {
-        $name =  config('laravel-facade.provider.namespace');
+        $name = config('laravel-facade.provider.namespace');
 
-        return str_replace($this->getNamespace($name).'\\', '', $name) . '/' . config('laravel-facade.provider.name') . '.php';
+        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
     }
 
 }
