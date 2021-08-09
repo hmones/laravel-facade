@@ -218,20 +218,6 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Create service provider file.
-     *
-     * @return void
-     */
-    protected function createServiceProvider(): void
-    {
-        if ($this->files->exists(app_path(self::SERVICE_PROVIDER_PATH))) {
-            return;
-        }
-
-        $this->files->copy(__DIR__.'/../'.self::SERVICE_PROVIDER_PATH, app_path(self::SERVICE_PROVIDER_PATH));
-    }
-
-    /**
      * Get the default namespace for the class.
      *
      * @param string $rootNamespace
