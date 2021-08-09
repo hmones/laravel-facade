@@ -8,8 +8,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class FacadeMakeCommand extends GeneratorCommand
 {
-    protected const SERVICE_PROVIDER_PATH = 'Providers/FacadeServiceProvider.php';
-
     protected $stubType = 'class';
 
     protected $facadeName;
@@ -180,8 +178,8 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function updateAppConfig(): void
     {
-        $class = 'App\Providers\FacadeServiceProvider::class';
-        $className = 'FacadeServiceProvider::class';
+        $className = config('laravel-facade.provider.name').'::class';
+        $class = config('laravel-facade.provider.namespace').'\\'.$className;
 
         $appConfig = $this->files->get(config_path('app.php'));
 
@@ -201,7 +199,7 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function updateServiceProvider(): void
     {
-        $serviceProvider = $this->files->get(app_path(self::SERVICE_PROVIDER_PATH));
+        $serviceProvider = $this->files->get(app_path($this->getProviderPath()));
 
         if (preg_match("/{$this->implementedClass}/", $serviceProvider)) {
             return;
@@ -209,12 +207,9 @@ class FacadeMakeCommand extends GeneratorCommand
 
         $this->stubType = 'binding';
         $replacement = $this->generateStub($this->facadeName, $this->implementedClass);
-        $pattern = '/(boot\s*\([^\)]*\)\s*:.*\s*)(?<body>\{(?:[^{}]+|(?&body))*(\}))/';
-        preg_match($pattern, $serviceProvider, $bootMethod);
-        $bootMethod = substr($bootMethod[0], 0, -1);
-        $replacement = $bootMethod.$replacement;
-        $serviceProvider = preg_replace($pattern, $replacement, $serviceProvider);
-        $this->files->put(app_path(self::SERVICE_PROVIDER_PATH), $serviceProvider);
+        $pattern = '/(boot\s*\([^\)]*\)[:\w\s]*)(?<body>(\{(?:[^{}]+|(?&body))*)\})/';
+        $serviceProvider = preg_replace($pattern, '$1'.'$3'.$replacement."\t}", $serviceProvider);
+        $this->files->put(app_path($this->getProviderPath()), $serviceProvider);
     }
 
     /**
@@ -251,5 +246,17 @@ class FacadeMakeCommand extends GeneratorCommand
             ['name', InputArgument::REQUIRED, 'The name of the class'],
             ['class namespace', InputArgument::REQUIRED, 'The namespace of the class the facade will implement'],
         ];
+    }
+
+    /**
+     * Get the service provider path.
+     *
+     * @return string
+     */
+    protected function getProviderPath(): string
+    {
+        $name = config('laravel-facade.provider.namespace');
+
+        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
     }
 }
