@@ -179,7 +179,7 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function updateAppConfig(): void
     {
         $className = config('laravel-facade.provider.name').'::class';
-        $class = config('laravel-facade.provider.namespace').'\\'. $className;
+        $class = config('laravel-facade.provider.namespace').'\\'.$className;
 
         $appConfig = $this->files->get(config_path('app.php'));
 
@@ -208,7 +208,7 @@ class FacadeMakeCommand extends GeneratorCommand
         $this->stubType = 'binding';
         $replacement = $this->generateStub($this->facadeName, $this->implementedClass);
         $pattern = '/(boot\s*\([^\)]*\)[:\w\s]*)(?<body>(\{(?:[^{}]+|(?&body))*)\})/';
-        $serviceProvider = preg_replace($pattern, '$1' . '$3' . $replacement . "\t}", $serviceProvider);
+        $serviceProvider = preg_replace($pattern, '$1'.'$3'.$replacement."\t}", $serviceProvider);
         $this->files->put(app_path($this->getProviderPath()), $serviceProvider);
     }
 
