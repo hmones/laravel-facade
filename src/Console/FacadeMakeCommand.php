@@ -259,5 +259,4 @@ class FacadeMakeCommand extends GeneratorCommand
 
         return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
     }
-
 }
