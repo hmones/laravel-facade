@@ -269,16 +269,4 @@ class FacadeMakeCommand extends GeneratorCommand
             ['class namespace', InputArgument::REQUIRED, 'The namespace of the class the facade will implement'],
         ];
     }
-
-    /**
-     * Get the service provider path.
-     *
-     * @return string
-     */
-    protected function getProviderPath(): string
-    {
-        $name = config('laravel-facade.provider.namespace');
-
-        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
-    }
 }
