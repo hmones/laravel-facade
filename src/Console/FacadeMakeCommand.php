@@ -3,6 +3,7 @@
 namespace Hmones\LaravelFacade\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -38,8 +39,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Execute the console command.
      *
      * @return void
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -47,13 +47,13 @@ class FacadeMakeCommand extends GeneratorCommand
         $this->implementedClass = $this->getClassInput();
 
         if ($this->isReservedName($this->facadeName)) {
-            $this->error("The name '{$this->facadeName}' is reserved by PHP.");
+            $this->error("The name '$this->facadeName' is reserved by PHP.");
 
             return;
         }
 
         if (! class_exists($this->implementedClass)) {
-            $this->error("The class '{$this->implementedClass}' does not exist, please create it first.");
+            $this->error("The class '$this->implementedClass' does not exist, please create it first.");
 
             return;
         }
@@ -69,7 +69,7 @@ class FacadeMakeCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getClassInput()
+    protected function getClassInput(): string
     {
         return trim($this->argument('class namespace'));
     }
@@ -77,8 +77,9 @@ class FacadeMakeCommand extends GeneratorCommand
     /**
      * Create the Facade file if it doesn't exist.
      *
-     * @param $name
-     * @return void
+     * @param string $name
+     * @return bool
+     * @throws FileNotFoundException
      */
     protected function createFacade(string $name): bool
     {
@@ -106,8 +107,9 @@ class FacadeMakeCommand extends GeneratorCommand
      * @param string $className
      * @param string $nameSpace
      * @return string
+     * @throws FileNotFoundException
      */
-    protected function generateStub($className, $nameSpace)
+    protected function generateStub(string $className, string $nameSpace): string
     {
         $stub = $this->files->get($this->getStub());
 
@@ -131,13 +133,13 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Replace the namespace of the implamented class for the given stub.
+     * Replace the namespace of the implemented class for the given stub.
      *
      * @param string $stub
      * @param string $name
      * @return string
      */
-    protected function replaceImplementedClass($stub, $name)
+    protected function replaceImplementedClass(string $stub, string $name): string
     {
         return str_replace(
             '{{ implementedClass }}',
@@ -153,7 +155,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * @param string $name
      * @return string
      */
-    protected function replaceFacadeName($stub, $name)
+    protected function replaceFacadeName(string $stub, string $name): string
     {
         return str_replace(
             '{{ facadeName }}',
@@ -162,6 +164,12 @@ class FacadeMakeCommand extends GeneratorCommand
         );
     }
 
+    /**
+     * Configure Laravel Facade.
+     *
+     * @return void
+     * @throws FileNotFoundException
+     */
     protected function configureFacade(): void
     {
         $this->comment('Publishing Facade Service Provider...');
@@ -175,6 +183,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Update the app configuration file to include the service provider.
      *
      * @return void
+     * @throws FileNotFoundException
      */
     protected function updateAppConfig(): void
     {
@@ -183,12 +192,12 @@ class FacadeMakeCommand extends GeneratorCommand
 
         $appConfig = $this->files->get(config_path('app.php'));
 
-        if (preg_match("/{$className}/", $appConfig)) {
+        if (preg_match("/$className/", $appConfig)) {
             return;
         }
 
-        $pattern = '/(\'providers\'\s*?=>\s*?\[[^\]]*)(class?,)(\s*\],)/';
-        $appConfig = preg_replace($pattern, '$1'."class,\n\t\t{$class},\n".'$3', $appConfig);
+        $pattern = '/(\'providers\'\s*?=>\s*?\[[^]]*)(class?,)(\s*],)/';
+        $appConfig = preg_replace($pattern, '$1'."class,\n\t\t$class,\n".'$3', $appConfig);
         $this->files->put(config_path('app.php'), $appConfig);
     }
 
@@ -196,12 +205,13 @@ class FacadeMakeCommand extends GeneratorCommand
      * Update service provider by instantiating the implementation class.
      *
      * @return void
+     * @throws FileNotFoundException
      */
     protected function updateServiceProvider(): void
     {
         $serviceProvider = $this->files->get(app_path($this->getProviderPath()));
 
-        if (preg_match("/{$this->implementedClass}/", $serviceProvider)) {
+        if (preg_match("/$this->implementedClass/", $serviceProvider)) {
             return;
         }
 
@@ -213,12 +223,24 @@ class FacadeMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Get the default namespace for the class.
+     * Get the service provider path.
      *
-     * @param string $rootNamespace
      * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getProviderPath(): string
+    {
+        $name = config('laravel-facade.provider.namespace');
+
+        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @param $rootNamespace
+     * @return string
+     */
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Facades';
     }
@@ -240,23 +262,11 @@ class FacadeMakeCommand extends GeneratorCommand
      *
      * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the class'],
             ['class namespace', InputArgument::REQUIRED, 'The namespace of the class the facade will implement'],
         ];
-    }
-
-    /**
-     * Get the service provider path.
-     *
-     * @return string
-     */
-    protected function getProviderPath(): string
-    {
-        $name = config('laravel-facade.provider.namespace');
-
-        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
     }
 }
