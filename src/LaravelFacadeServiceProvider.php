@@ -3,6 +3,7 @@
 namespace Hmones\LaravelFacade;
 
 use Hmones\LaravelFacade\Console\FacadeMakeCommand;
+use Hmones\LaravelFacade\Console\FacadeRemoveCommand;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelFacadeServiceProvider extends ServiceProvider
@@ -36,6 +37,7 @@ class LaravelFacadeServiceProvider extends ServiceProvider
 
         $this->commands([
             FacadeMakeCommand::class,
+            FacadeRemoveCommand::class,
         ]);
     }
 
