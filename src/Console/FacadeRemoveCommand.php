@@ -83,9 +83,9 @@ class FacadeRemoveCommand extends Command
      */
     protected function getProviderPath(): string
     {
-        $name = config('laravel-facade.provider.namespace');
+        $providerNamespace = config('laravel-facade.provider.namespace');
 
-        return app_path(str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php');
+        return app_path(str_replace($this->getNamespace($providerNamespace).'\\', '', $providerNamespace).'/'.config('laravel-facade.provider.name').'.php');
     }
 
     /**
