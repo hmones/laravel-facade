@@ -71,7 +71,7 @@ class FacadeRemoveCommand extends Command
     protected function removeFacade(): void
     {
         $this->files->delete(app_path('Facades/'.$this->facadeName.'.php'));
-        $pattern = '/.*\''. $this->facadeName.'\'[^}]*}\);\n*/';
+        $pattern = '/.*\''.$this->facadeName.'\'[^}]*}\);\n*/';
         $serviceProvider = $this->files->get($this->getProviderPath());
         $this->files->put($this->getProviderPath(), preg_replace($pattern, '', $serviceProvider));
     }
