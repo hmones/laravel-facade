@@ -14,7 +14,13 @@
         }
     ],
     "homepage": "https://github.com/hmones/laravel-facade",
-    "keywords": ["Laravel", "LaravelFacade"],
+    "keywords": [
+        "Laravel",
+        "LaravelFacade"
+    ],
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
     "require": {
         "illuminate/support": "~7|~8"
     },
