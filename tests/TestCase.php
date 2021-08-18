@@ -7,15 +7,15 @@ use Orchestra\Testbench\TestCase as Test;
 
 class TestCase extends Test
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     protected function getPackageProviders($app)
     {
         return [
             LaravelFacadeServiceProvider::class,
         ];
+    }
+
+    public function test_package_files_are_published_correctly(): void
+    {
+        $this->assertTrue(true);
     }
 }

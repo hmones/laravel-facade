@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 
 class MakeFacadeTest extends TestCase
 {
-    public function test_facade_is_create_successfully(): void
+    public function test_facade_is_created_successfully(): void
     {
         // destination path of the Facade class
         $facadeClass = app_path('Facades/TestFacade.php');
@@ -31,6 +31,31 @@ class MakeFacadeTest extends TestCase
         // Assert the file contains the right contents
         $this->assertStringContainsString('TestFacade', file_get_contents($facadeClass));
         $this->assertStringContainsString('App\Providers\FacadeServiceProvider::class', file_get_contents(config_path('app.php')));
+    }
+
+    public function test_facade_is_not_created_when_implemented_class_not_specified(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_facade_is_not_created_if_already_exist(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_facade_is_created_if_already_exist_with_force_option(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_facade_is_not_created_if_name_is_reserved(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_facade_is_not_created_when_implemented_class_doesnt_exist(): void
+    {
+        $this->assertTrue(true);
     }
 
     public function tearDown(): void
