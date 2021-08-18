@@ -3,47 +3,73 @@
 namespace Hmones\LaravelFacade\Tests\Feature;
 
 use Hmones\LaravelFacade\Tests\TestCase;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 class MakeFacadeTest extends TestCase
 {
     public function test_facade_is_created_successfully(): void
     {
-        // destination path of the Facade class
-        $facadeClass = app_path('Facades/TestFacade.php');
-
         // make sure we're starting from a clean state
-        if (File::exists($facadeClass)) {
-            unlink($facadeClass);
+        if (File::exists($this->facadeClassPath)) {
+            unlink($this->facadeClassPath);
         }
 
-        $this->assertFalse(File::exists($facadeClass));
+        $this->assertFalse(File::exists($this->facadeClassPath));
 
         // Run the make command
-        //Artisan::call('make:controller TestController');
-        Artisan::call('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\ImplementedClasses\\\Test');
+        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+            ->expectsOutput('Publishing Facade Service Provider...')
+            ->expectsOutput('Updating Facade Service Provider...')
+            ->expectsOutput('Facade created successfully.')
+            ->execute();
 
         // Assert a new file is created
-        $this->assertTrue(File::exists($facadeClass));
-        $this->assertTrue(File::exists(app_path('Providers/FacadeServiceProvider.php')));
+        $this->assertTrue(File::exists($this->facadeClassPath));
+        $this->assertTrue(File::exists($this->serviceProviderPath));
 
         // Assert the file contains the right contents
-        $this->assertStringContainsString('TestFacade', file_get_contents($facadeClass));
-        $this->assertStringContainsString('App\Providers\FacadeServiceProvider::class', file_get_contents(config_path('app.php')));
+        $this->assertStringContainsString('TestFacade', file_get_contents($this->facadeClassPath));
+        $this->assertStringContainsString($this->serviceProviderClass, file_get_contents(config_path('app.php')));
+        $this->assertStringContainsString('TestFacade', file_get_contents($this->serviceProviderPath));
     }
 
     public function test_facade_is_not_created_when_implemented_class_not_specified(): void
     {
-        $this->assertTrue(true);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Not enough arguments (missing: "class namespace")');
+
+        // make sure we're starting from a clean state
+        if (File::exists($this->facadeClassPath)) {
+            unlink($this->facadeClassPath);
+        }
+
+        $this->assertFalse(File::exists($this->facadeClassPath));
+
+        // Run the make command
+        $this->artisan('make:facade TestFacade');
+
+        // Assert a new file is created
+        $this->assertFalse(File::exists($this->facadeClassPath));
+        $this->assertFalse(File::exists($this->serviceProviderPath));
+
+        // Assert the file contains the right contents
+        $this->assertStringNotContainsString($this->serviceProviderClass, file_get_contents(config_path('app.php')));
     }
 
-    public function test_facade_is_not_created_if_already_exist(): void
+    public function test_facade_is_not_created_if_already_exists(): void
     {
-        $this->assertTrue(true);
+        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+            ->execute();
+
+        $this->assertTrue(File::exists($this->facadeClassPath));
+
+        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+            ->expectsOutput('Facade already exists!')
+            ->execute();
     }
 
-    public function test_facade_is_created_if_already_exist_with_force_option(): void
+    public function test_facade_is_created_if_already_exists_with_force_option(): void
     {
         $this->assertTrue(true);
     }
@@ -54,6 +80,11 @@ class MakeFacadeTest extends TestCase
     }
 
     public function test_facade_is_not_created_when_implemented_class_doesnt_exist(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_updating_config_reflects_on_facade_creation(): void
     {
         $this->assertTrue(true);
     }

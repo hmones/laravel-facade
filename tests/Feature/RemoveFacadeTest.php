@@ -8,11 +8,16 @@ class RemoveFacadeTest extends TestCase
 {
     public function test_facade_is_removed_successfully(): void
     {
-        $this->assertTrue(true);
+        $this->assertTrue(false);
     }
 
     public function test_facade_is_not_removed_if_it_doesnt_exist(): void
     {
-        $this->assertTrue(true);
+        $this->assertTrue(false);
+    }
+
+    public function test_facade_is_unregistered_from_service_provider(): void
+    {
+        $this->assertTrue(false);
     }
 }
