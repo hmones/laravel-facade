@@ -3,6 +3,7 @@
 namespace Hmones\LaravelFacade\Tests;
 
 use Hmones\LaravelFacade\LaravelFacadeServiceProvider;
+use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase as Test;
 
 class TestCase extends Test
@@ -11,25 +12,39 @@ class TestCase extends Test
     protected $serviceProviderClass;
     protected $facadeClassPath;
 
-    public function test_package_files_are_published_correctly(): void
+    public function test_basic(): void
     {
         $this->assertTrue(true);
     }
 
-    public function setUp(): void
+    protected function getProviderPath(): string
     {
-        parent::setUp();
         $providerDirectory = config('laravel-facade.provider.namespace');
-        $this->serviceProviderPath = app_path(
-            str_replace($this->getNamespace($providerDirectory).'\\', '', $providerDirectory).'/'.config('laravel-facade.provider.name').'.php'
+        return app_path(
+            str_replace(
+                $this->getNamespace($providerDirectory).'\\',
+                '',
+                $providerDirectory
+            ).'/'.config('laravel-facade.provider.name').'.php'
         );
-        $this->facadeClassPath = app_path('Facades/TestFacade.php');
-        $this->serviceProviderClass = config('laravel-facade.provider.namespace').'\\'.config('laravel-facade.provider.name').'::class';
     }
 
     protected function getNamespace($name): string
     {
         return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
+    }
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->serviceProviderPath = $this->getProviderPath();
+        $this->facadeClassPath = app_path('Facades/TestFacade.php');
+        $this->serviceProviderClass = $this->getProviderClass();
+    }
+
+    protected function getProviderClass(): string
+    {
+        return config('laravel-facade.provider.namespace').'\\'.config('laravel-facade.provider.name').'::class';
     }
 
     protected function getPackageProviders($app)
