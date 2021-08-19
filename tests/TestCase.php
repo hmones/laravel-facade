@@ -3,7 +3,6 @@
 namespace Hmones\LaravelFacade\Tests;
 
 use Hmones\LaravelFacade\LaravelFacadeServiceProvider;
-use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase as Test;
 
 class TestCase extends Test
@@ -17,9 +16,18 @@ class TestCase extends Test
         $this->assertTrue(true);
     }
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->serviceProviderPath = $this->getProviderPath();
+        $this->facadeClassPath = app_path('Facades/TestFacade.php');
+        $this->serviceProviderClass = $this->getProviderClass();
+    }
+
     protected function getProviderPath(): string
     {
         $providerDirectory = config('laravel-facade.provider.namespace');
+
         return app_path(
             str_replace(
                 $this->getNamespace($providerDirectory).'\\',
@@ -32,14 +40,6 @@ class TestCase extends Test
     protected function getNamespace($name): string
     {
         return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
-    }
-
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->serviceProviderPath = $this->getProviderPath();
-        $this->facadeClassPath = app_path('Facades/TestFacade.php');
-        $this->serviceProviderClass = $this->getProviderClass();
     }
 
     protected function getProviderClass(): string
