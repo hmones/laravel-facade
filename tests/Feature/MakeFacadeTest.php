@@ -8,30 +8,33 @@ use Symfony\Component\Console\Exception\RuntimeException;
 
 class MakeFacadeTest extends TestCase
 {
+    const VALID_COMMAND = 'make:facade TestFacade Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand';
+
     public function test_facade_is_created_successfully(): void
     {
-        // make sure we're starting from a clean state
         if (File::exists($this->facadeClassPath)) {
             unlink($this->facadeClassPath);
         }
 
         $this->assertFalse(File::exists($this->facadeClassPath));
 
-        // Run the make command
-        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+        $this->artisan(self::VALID_COMMAND)
             ->expectsOutput('Publishing Facade Service Provider...')
             ->expectsOutput('Updating Facade Service Provider...')
             ->expectsOutput('Facade created successfully.')
             ->execute();
 
-        // Assert a new file is created
-        $this->assertTrue(File::exists($this->facadeClassPath));
-        $this->assertTrue(File::exists($this->serviceProviderPath));
+        $this->assertFacadeIsRegistered();
+    }
 
-        // Assert the file contains the right contents
+    protected function assertFacadeIsRegistered(): void
+    {
+        $this->assertTrue(File::exists($this->facadeClassPath));
+        $this->assertTrue(File::exists($this->getProviderPath()));
+
         $this->assertStringContainsString('TestFacade', file_get_contents($this->facadeClassPath));
-        $this->assertStringContainsString($this->serviceProviderClass, file_get_contents(config_path('app.php')));
-        $this->assertStringContainsString('TestFacade', file_get_contents($this->serviceProviderPath));
+        $this->assertStringContainsString($this->getProviderClass(), file_get_contents(config_path('app.php')));
+        $this->assertStringContainsString('TestFacade', file_get_contents($this->getProviderPath()));
     }
 
     public function test_facade_is_not_created_when_implemented_class_not_specified(): void
@@ -39,61 +42,102 @@ class MakeFacadeTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not enough arguments (missing: "class namespace")');
 
-        // make sure we're starting from a clean state
         if (File::exists($this->facadeClassPath)) {
             unlink($this->facadeClassPath);
         }
 
         $this->assertFalse(File::exists($this->facadeClassPath));
 
-        // Run the make command
-        $this->artisan('make:facade TestFacade');
+        $this->artisan('make:facade TestFacade')->execute();
 
-        // Assert a new file is created
+        $this->assertFacadeIsNotRegistered();
+    }
+
+    protected function assertFacadeIsNotRegistered(): void
+    {
         $this->assertFalse(File::exists($this->facadeClassPath));
         $this->assertFalse(File::exists($this->serviceProviderPath));
 
-        // Assert the file contains the right contents
         $this->assertStringNotContainsString($this->serviceProviderClass, file_get_contents(config_path('app.php')));
     }
 
     public function test_facade_is_not_created_if_already_exists(): void
     {
-        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+        $this->artisan(self::VALID_COMMAND)
             ->execute();
 
         $this->assertTrue(File::exists($this->facadeClassPath));
 
-        $this->artisan('make:facade TestFacade ' . 'Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand')
+        $this->artisan(self::VALID_COMMAND)
             ->expectsOutput('Facade already exists!')
             ->execute();
     }
 
-    public function test_facade_is_created_if_already_exists_with_force_option(): void
-    {
-        $this->assertTrue(true);
-    }
-
     public function test_facade_is_not_created_if_name_is_reserved(): void
     {
-        $this->assertTrue(true);
+        if (File::exists($this->facadeClassPath)) {
+            unlink($this->facadeClassPath);
+        }
+
+        $this->assertFalse(File::exists($this->facadeClassPath));
+
+        $this->artisan(preg_replace('/TestFacade/', 'Class', self::VALID_COMMAND))
+            ->expectsOutput('The name \'Class\' is reserved by PHP.')
+            ->execute();
+
+        $this->assertFacadeIsNotRegistered();
     }
 
     public function test_facade_is_not_created_when_implemented_class_doesnt_exist(): void
     {
-        $this->assertTrue(true);
+        if (File::exists($this->facadeClassPath)) {
+            unlink($this->facadeClassPath);
+        }
+
+        $this->assertFalse(File::exists($this->facadeClassPath));
+
+        $this->artisan('make:facade ExampleFacade NonExisting\\\ClassName')
+            ->expectsOutput('The class \'NonExisting\ClassName\' does not exist, please create it first.')
+            ->execute();
+
+        $this->assertFacadeIsNotRegistered();
     }
 
     public function test_updating_config_reflects_on_facade_creation(): void
     {
-        $this->assertTrue(true);
+        $this->artisan('vendor:publish --tag=laravel-facade-config')->execute();
+
+        $configurationPath = config_path('laravel-facade.php');
+
+        $content = preg_replace('/FacadeServiceProvider/', 'CustomServiceProvider', file_get_contents($configurationPath));
+        $content = preg_replace('/App\\\Providers/', 'App\\Custom', $content);
+
+        File::put($configurationPath, $content);
+
+        $this->artisan(self::VALID_COMMAND)
+            ->expectsOutput('Publishing Facade Service Provider...')
+            ->expectsOutput('Updating Facade Service Provider...')
+            ->expectsOutput('Facade created successfully.')
+            ->execute();
+
+        $this->assertFacadeIsRegistered();
+    }
+
+    public function test_package_files_are_published_correctly(): void
+    {
+        $this->artisan('vendor:publish --tag=laravel-facade-config')->execute();
+        $this->assertTrue(File::exists(config_path('laravel-facade.php')));
+
+        $this->artisan('vendor:publish --tag=laravel-facade-provider')->execute();
+        $this->assertTrue(File::exists($this->getProviderPath()));
     }
 
     public function tearDown(): void
     {
         File::deleteDirectory(app_path('Facades'));
-        File::delete(app_path('Providers/FacadeServiceProvider.php'));
+        File::delete($this->getProviderPath());
         $appConfig = File::get(config_path('app.php'));
-        File::put(config_path('app.php'), preg_replace('/App.*FacadeServiceProvider::class,/', '', $appConfig));
+        File::put(config_path('app.php'), preg_replace('/App.*'.config('laravel-facade.provider.name').'::class,/', '', $appConfig));
+        File::delete(config_path('laravel-facade.php'));
     }
 }

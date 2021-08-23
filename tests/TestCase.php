@@ -11,7 +11,7 @@ class TestCase extends Test
     protected $serviceProviderClass;
     protected $facadeClassPath;
 
-    public function test_package_files_are_published_correctly(): void
+    public function test_basic(): void
     {
         $this->assertTrue(true);
     }
@@ -19,17 +19,32 @@ class TestCase extends Test
     public function setUp(): void
     {
         parent::setUp();
-        $providerDirectory = config('laravel-facade.provider.namespace');
-        $this->serviceProviderPath = app_path(
-            str_replace($this->getNamespace($providerDirectory).'\\', '', $providerDirectory).'/'.config('laravel-facade.provider.name').'.php'
-        );
+        $this->serviceProviderPath = $this->getProviderPath();
         $this->facadeClassPath = app_path('Facades/TestFacade.php');
-        $this->serviceProviderClass = config('laravel-facade.provider.namespace').'\\'.config('laravel-facade.provider.name').'::class';
+        $this->serviceProviderClass = $this->getProviderClass();
+    }
+
+    protected function getProviderPath(): string
+    {
+        $providerDirectory = config('laravel-facade.provider.namespace');
+
+        return app_path(
+            str_replace(
+                $this->getNamespace($providerDirectory).'\\',
+                '',
+                $providerDirectory
+            ).'/'.config('laravel-facade.provider.name').'.php'
+        );
     }
 
     protected function getNamespace($name): string
     {
         return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
+    }
+
+    protected function getProviderClass(): string
+    {
+        return config('laravel-facade.provider.namespace').'\\'.config('laravel-facade.provider.name').'::class';
     }
 
     protected function getPackageProviders($app)

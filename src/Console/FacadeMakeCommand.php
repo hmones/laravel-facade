@@ -5,13 +5,28 @@ namespace Hmones\LaravelFacade\Console;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 
 class FacadeMakeCommand extends GeneratorCommand
 {
+    /**
+     * The type of the stub to be generated.
+     *
+     * @var string
+     */
     protected $stubType = 'class';
 
+    /**
+     * The name of the facade.
+     *
+     * @var string
+     */
     protected $facadeName;
+
+    /**
+     * The class to be implemented by the facade.
+     *
+     * @var string
+     */
     protected $implementedClass;
 
     /**
@@ -83,9 +98,7 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function createFacade(string $name): bool
     {
-        if ((! $this->hasOption('force') ||
-                ! $this->option('force')) &&
-            $this->alreadyExists($this->getNameInput())) {
+        if ($this->alreadyExists($this->getNameInput())) {
             $this->error($this->type.' already exists!');
 
             return false;
@@ -243,18 +256,6 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Facades';
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions(): array
-    {
-        return [
-            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the facade already exists'],
-        ];
     }
 
     /**
