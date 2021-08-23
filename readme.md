@@ -52,7 +52,7 @@ created, so in case you use a different folder you need to change that.
 To create a new Facade for a particular class you can simply use the following command
 
 ```bash
-php artisan make:facade FacadeName "App\Custom\ImplementatedClass"
+php artisan make:facade FacadeName "App\Custom\ImplementedClass"
  ```
 
 To remove a Facade
