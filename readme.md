@@ -20,7 +20,22 @@ $ composer require hmones/laravel-facade --dev
 
 To create a new Facade for your class you can simply use the following command
 ```
-php artisan make:facade FacadeName ImplementationClassNameSpace
+php artisan make:facade FacadeName "App\Custom\ImplementatedClass"
+ ```
+
+To remove a created Facade
+```
+php artisan remove:facade FacadeName
+ ```
+
+To publish the configuration of Laravel Facade
+```
+php artisan vendor:publish --tag=laravel-facade-config
+ ```
+
+To publish the provider of Laravel Facade
+```
+php artisan vendor:publish --tag=laravel-facade-provider
  ```
 
 ## Change log
