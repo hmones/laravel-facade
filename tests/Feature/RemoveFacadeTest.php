@@ -60,5 +60,4 @@ class RemoveFacadeTest extends TestCase
         File::put(config_path('app.php'), preg_replace('/App.*'.config('laravel-facade.provider.name').'::class,/', '', $appConfig));
         File::delete(config_path('laravel-facade.php'));
     }
-
 }
