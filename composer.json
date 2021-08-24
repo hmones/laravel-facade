@@ -5,7 +5,7 @@
     "authors": [
         {
             "name": "Haytahm Mones",
-            "email": "hello@haytham.me",
+            "email": "haytham.mones@gmail.com",
             "homepage": "https://www.haythammones.com"
         },
         {
@@ -18,10 +18,12 @@
         "Laravel",
         "LaravelFacade"
     ],
+    "minimum-stability": "dev",
     "scripts": {
         "test": "vendor/bin/phpunit"
     },
     "require": {
+        "composer-runtime-api": "^2.0",
         "illuminate/support": "~7|~8"
     },
     "require-dev": {
