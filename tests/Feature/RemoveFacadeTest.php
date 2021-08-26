@@ -31,7 +31,7 @@ class RemoveFacadeTest extends TestCase
         $this->assertFalse(File::exists($this->facadeClassPath));
 
         $this->artisan('remove:facade TestFacade')
-            ->expectsOutput('The class TestFacade does not exist.')
+            ->expectsOutput('The class \'TestFacade\' does not exist.')
             ->execute();
     }
 
@@ -49,7 +49,7 @@ class RemoveFacadeTest extends TestCase
             ->expectsOutput('Facade TestFacade purged successfully.')
             ->execute();
 
-        $this->assertStringContainsString('TestFacade', file_get_contents($this->getProviderPath()));
+        $this->assertStringNotContainsString('TestFacade', file_get_contents($this->getProviderPath()));
     }
 
     public function tearDown(): void
