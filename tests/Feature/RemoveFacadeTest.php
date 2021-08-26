@@ -7,19 +7,16 @@ use Illuminate\Support\Facades\File;
 
 class RemoveFacadeTest extends TestCase
 {
-    const VALID_COMMAND = 'make:facade TestFacade Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand';
+    const CREATE_COMMAND = 'make:facade TestFacade Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand';
+    const REMOVE_COMMAND = 'remove:facade TestFacade';
 
     public function test_facade_is_removed_successfully(): void
     {
-        $this->artisan(self::VALID_COMMAND)
-            ->expectsOutput('Publishing Facade Service Provider...')
-            ->expectsOutput('Updating Facade Service Provider...')
-            ->expectsOutput('Facade created successfully.')
-            ->execute();
+        $this->artisan(self::CREATE_COMMAND)->execute();
 
         $this->assertTrue(File::exists($this->facadeClassPath));
 
-        $this->artisan('remove:facade TestFacade')
+        $this->artisan(self::REMOVE_COMMAND)
             ->expectsOutput('Facade TestFacade purged successfully.')
             ->execute();
 
@@ -30,22 +27,18 @@ class RemoveFacadeTest extends TestCase
     {
         $this->assertFalse(File::exists($this->facadeClassPath));
 
-        $this->artisan('remove:facade TestFacade')
+        $this->artisan(self::REMOVE_COMMAND)
             ->expectsOutput('The class \'TestFacade\' does not exist.')
             ->execute();
     }
 
     public function test_facade_is_unregistered_from_service_provider(): void
     {
-        $this->artisan(self::VALID_COMMAND)
-            ->expectsOutput('Publishing Facade Service Provider...')
-            ->expectsOutput('Updating Facade Service Provider...')
-            ->expectsOutput('Facade created successfully.')
-            ->execute();
+        $this->artisan(self::CREATE_COMMAND)->execute();
 
         $this->assertTrue(File::exists($this->facadeClassPath));
 
-        $this->artisan('remove:facade TestFacade')
+        $this->artisan(self::REMOVE_COMMAND)
             ->expectsOutput('Facade TestFacade purged successfully.')
             ->execute();
 
