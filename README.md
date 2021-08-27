@@ -3,9 +3,9 @@
 <p align="center">
 <a href="https://github.com/hmones/laravel-facade/actions"><img src="https://github.com/hmones/laravel-facade/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
 <a href="https://github.styleci.io/repos/390311402"><img src="https://github.styleci.io/repos/390311402/shield" alt="Style CI"></a>
-<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="https://img.shields.io/packagist/dt/hmones/laravel-facade" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="https://img.shields.io/packagist/v/hmones/laravel-facade" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="https://img.shields.io/packagist/l/hmones/laravel-facade" alt="License"></a>
+<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="http://poser.pugx.org/hmones/laravel-facade/downloads" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="http://poser.pugx.org/hmones/laravel-facade/v" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/hmones/laravel-facade"><img src="http://poser.pugx.org/hmones/laravel-facade/license" alt="License"></a>
 </p>
 
 This package makes the process of creating facades in laravel super easy and with one simple artisan command. For each
