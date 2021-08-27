@@ -11,11 +11,6 @@ class TestCase extends Test
     protected $serviceProviderClass;
     protected $facadeClassPath;
 
-    public function test_basic(): void
-    {
-        $this->assertTrue(true);
-    }
-
     public function setUp(): void
     {
         parent::setUp();

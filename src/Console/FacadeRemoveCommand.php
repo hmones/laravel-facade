@@ -53,13 +53,13 @@ class FacadeRemoveCommand extends Command
     {
         $this->facadeName = trim($this->argument('name'));
 
-        if (! class_exists('App\Facades\\'.$this->facadeName)) {
+        if (! $this->files->exists(app_path('Facades/'.$this->facadeName.'.php'))) {
             $this->error("The class '$this->facadeName' does not exist.");
 
             return;
         }
 
-        $this->removeFacade($this->facadeName);
+        $this->removeFacade();
         $this->info('Facade '.$this->facadeName.' purged successfully.');
     }
 
