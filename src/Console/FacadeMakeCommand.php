@@ -13,21 +13,21 @@ class FacadeMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $stubType = 'class';
+    protected string $stubType = 'class';
 
     /**
      * The name of the facade.
      *
      * @var string
      */
-    protected $facadeName;
+    protected string $facadeName;
 
     /**
      * The class to be implemented by the facade.
      *
      * @var string
      */
-    protected $implementedClass;
+    protected string $classPath;
 
     /**
      * The console command name.
@@ -59,7 +59,7 @@ class FacadeMakeCommand extends GeneratorCommand
     public function handle(): void
     {
         $this->facadeName = $this->getNameInput();
-        $this->implementedClass = $this->getClassInput();
+        $this->classPath = $this->getClassInput();
 
         if ($this->isReservedName($this->facadeName)) {
             $this->error("The name '$this->facadeName' is reserved by PHP.");
@@ -67,36 +67,35 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        if (! class_exists($this->implementedClass)) {
-            $this->error("The class '$this->implementedClass' does not exist, please create it first.");
+        if (! $this->files->exists(app_path($this->classPath))) {
+            $this->error("The class does not exist in 'app/$this->classPath', please create it first.");
 
             return;
         }
 
-        if ($this->createFacade($this->facadeName)) {
+        if ($this->createFacade()) {
             $this->configureFacade();
             $this->info($this->type.' created successfully.');
         }
     }
 
     /**
-     * Get the desired class to be implemented from the input.
+     * Get the path to the implemented class from the input.
      *
      * @return string
      */
     protected function getClassInput(): string
     {
-        return trim($this->argument('class namespace'));
+        return trim($this->argument('classPath'));
     }
 
     /**
      * Create the Facade file if it doesn't exist.
      *
-     * @param string $name
      * @return bool
      * @throws FileNotFoundException
      */
-    protected function createFacade(string $name): bool
+    protected function createFacade(): bool
     {
         if ($this->alreadyExists($this->getNameInput())) {
             $this->error($this->type.' already exists!');
@@ -104,12 +103,12 @@ class FacadeMakeCommand extends GeneratorCommand
             return false;
         }
 
-        $nameSpace = $this->qualifyClass($name);
+        $nameSpace = $this->qualifyClass($this->facadeName);
         $path = $this->getPath($nameSpace);
 
         $this->makeDirectory($path);
         $this->stubType = 'class';
-        $this->files->put($path, $this->generateStub($name, $nameSpace));
+        $this->files->put($path, $this->generateStub($this->facadeName, $nameSpace));
 
         return true;
     }
@@ -223,13 +222,14 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function updateServiceProvider(): void
     {
         $serviceProvider = $this->files->get(app_path($this->getProviderPath()));
+        $namespace = 'App\\'.str_replace('.php', '', str_replace('/', '\\', $this->classPath));
 
-        if (preg_match("/$this->implementedClass/", $serviceProvider)) {
+        if (preg_match("/$namespace/", $serviceProvider)) {
             return;
         }
 
         $this->stubType = 'binding';
-        $replacement = $this->generateStub($this->facadeName, $this->implementedClass);
+        $replacement = $this->generateStub($this->facadeName, $namespace);
         $pattern = '/(boot\s*\([^\)]*\)[:\w\s]*)(?<body>(\{(?:[^{}]+|(?&body))*)\})/';
         $serviceProvider = preg_replace($pattern, '$1'.'$3'.$replacement."\t}", $serviceProvider);
         $this->files->put(app_path($this->getProviderPath()), $serviceProvider);
@@ -242,9 +242,9 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getProviderPath(): string
     {
-        $name = config('laravel-facade.provider.namespace');
+        $namespace = config('laravel-facade.provider.namespace');
 
-        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
+        return str_replace($this->getNamespace($namespace).'\\', '', $namespace).'/'.config('laravel-facade.provider.name').'.php';
     }
 
     /**
@@ -267,7 +267,7 @@ class FacadeMakeCommand extends GeneratorCommand
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the class'],
-            ['class namespace', InputArgument::REQUIRED, 'The namespace of the class the facade will implement'],
+            ['classPath', InputArgument::REQUIRED, 'The path to implemented class inside the app directory.'],
         ];
     }
 }

@@ -10,6 +10,8 @@ class TestCase extends Test
     protected $serviceProviderPath;
     protected $serviceProviderClass;
     protected $facadeClassPath;
+    protected $appConfigPath;
+    protected $packageConfigPath;
 
     public function setUp(): void
     {
@@ -17,6 +19,9 @@ class TestCase extends Test
         $this->serviceProviderPath = $this->getProviderPath();
         $this->facadeClassPath = app_path('Facades/TestFacade.php');
         $this->serviceProviderClass = $this->getProviderClass();
+        $this->appConfigPath = config_path('app.php');
+        $this->packageConfigPath = config_path('laravel-facade.php');
+        $this->artisan('make:controller Controller')->execute();
     }
 
     protected function getProviderPath(): string
