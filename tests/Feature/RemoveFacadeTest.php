@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class RemoveFacadeTest extends TestCase
 {
-    const CREATE_COMMAND = 'make:facade TestFacade Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand';
+    const CREATE_COMMAND = 'make:facade TestFacade Http/Controllers/Controller.php';
     const REMOVE_COMMAND = 'remove:facade TestFacade';
 
     public function test_facade_is_removed_successfully(): void
