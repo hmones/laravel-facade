@@ -8,7 +8,7 @@ use Symfony\Component\Console\Exception\RuntimeException;
 
 class MakeFacadeTest extends TestCase
 {
-    const VALID_COMMAND = 'make:facade TestFacade Hmones\\\LaravelFacade\\\Console\\\FacadeMakeCommand';
+    const VALID_COMMAND = 'make:facade TestFacade Http/Controllers/Controller.php';
 
     public function test_facade_is_created_successfully(): void
     {
@@ -40,7 +40,7 @@ class MakeFacadeTest extends TestCase
     public function test_facade_is_not_created_when_implemented_class_not_specified(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Not enough arguments (missing: "class namespace")');
+        $this->expectExceptionMessage('Not enough arguments (missing: "classPath")');
 
         if (File::exists($this->facadeClassPath)) {
             unlink($this->facadeClassPath);
@@ -96,8 +96,8 @@ class MakeFacadeTest extends TestCase
 
         $this->assertFalse(File::exists($this->facadeClassPath));
 
-        $this->artisan('make:facade ExampleFacade NonExisting\\\ClassName')
-            ->expectsOutput('The class \'NonExisting\ClassName\' does not exist, please create it first.')
+        $this->artisan('make:facade ExampleFacade NonExisting/Path/ClassName.php')
+            ->expectsOutput("The class does not exist in 'app/NonExisting/Path/ClassName.php', please create it first.")
             ->execute();
 
         $this->assertFacadeIsNotRegistered();
