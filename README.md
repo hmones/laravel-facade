@@ -49,10 +49,12 @@ created, so in case you use a different folder you need to change that.
 
 ## Usage
 
-To create a new Facade for a particular class you can simply use the following command
+To create a new Facade for a particular class you can simply use the following command which accepts two inputs:
+- **Facade Name**: The name of the Facade class that you would like to create.
+- **Class Path**: the path to the class file that you would like to implement inside the app directory of your application. e.g. ExampleController can be located by default at ```Http\Controllers\ExampleController.php```
 
 ```bash
-php artisan make:facade FacadeName "App\Custom\ImplementedClass"
+php artisan make:facade FacadeName Custom/ImplementedClass.php
  ```
 
 To remove a Facade
@@ -76,7 +78,7 @@ Please see the [changelog](CHANGELOG.md) for more information on what has change
 ## Testing
 
 ``` bash
-$ composer test
+composer test
 ```
 
 ## Contributing
