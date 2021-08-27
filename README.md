@@ -49,10 +49,12 @@ created, so in case you use a different folder you need to change that.
 
 ## Usage
 
-To create a new Facade for a particular class you can simply use the following command
+To create a new Facade for a particular class you can simply use the following command which accepts two inputs:
+- **Facade Name**: The name of the Facade class that you would like to create.
+- **Class Path**: the path to the class file that you would like to implement inside the app directory of your application. e.g. ExampleController can be located by default at ```Http\Controllers\ExampleController.php```
 
 ```bash
-php artisan make:facade FacadeName "App\Custom\ImplementedClass"
+php artisan make:facade FacadeName Custom/ImplementedClass.php
  ```
 
 To remove a Facade
@@ -71,17 +73,17 @@ php artisan vendor:publish --tag=laravel-facade-provider
 
 ## Change log
 
-Please see the [changelog](changelog.md) for more information on what has changed recently.
+Please see the [changelog](CHANGELOG.md) for more information on what has changed recently.
 
 ## Testing
 
 ``` bash
-$ composer test
+composer test
 ```
 
 ## Contributing
 
-Please see [contributing.md](contributing.md) for details and a todolist.
+Please see [contributing.md](CONTRIBUTING.md) for details and a todolist.
 
 ## Security
 
@@ -95,7 +97,7 @@ If you discover any security related issues, please email author email instead o
 
 ## License
 
-license. Please see the [license file](license.md) for more information.
+license. Please see the [license file](LICENSE.md) for more information.
 
 [ico-version]: https://img.shields.io/packagist/v/hmones/laravel-facade.svg
 
