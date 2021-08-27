@@ -33,7 +33,7 @@ class MakeFacadeTest extends TestCase
         $this->assertTrue(File::exists($this->getProviderPath()));
 
         $this->assertStringContainsString('TestFacade', file_get_contents($this->facadeClassPath));
-        $this->assertStringContainsString($this->getProviderClass(), file_get_contents(config_path('app.php')));
+        $this->assertStringContainsString($this->getProviderClass(), file_get_contents($this->appConfigPath));
         $this->assertStringContainsString('TestFacade', file_get_contents($this->getProviderPath()));
     }
 
@@ -58,7 +58,7 @@ class MakeFacadeTest extends TestCase
         $this->assertFalse(File::exists($this->facadeClassPath));
         $this->assertFalse(File::exists($this->serviceProviderPath));
 
-        $this->assertStringNotContainsString($this->serviceProviderClass, file_get_contents(config_path('app.php')));
+        $this->assertStringNotContainsString($this->serviceProviderClass, file_get_contents($this->appConfigPath));
     }
 
     public function test_facade_is_not_created_if_already_exists(): void
@@ -107,12 +107,10 @@ class MakeFacadeTest extends TestCase
     {
         $this->artisan('vendor:publish --tag=laravel-facade-config')->execute();
 
-        $configurationPath = config_path('laravel-facade.php');
-
-        $content = preg_replace('/FacadeServiceProvider/', 'CustomServiceProvider', file_get_contents($configurationPath));
+        $content = preg_replace('/FacadeServiceProvider/', 'CustomServiceProvider', file_get_contents($this->packageConfigPath));
         $content = preg_replace('/App\\\Providers/', 'App\\Custom', $content);
 
-        File::put($configurationPath, $content);
+        File::put($this->packageConfigPath, $content);
 
         $this->artisan(self::VALID_COMMAND)
             ->expectsOutput('Publishing Facade Service Provider...')
@@ -126,7 +124,7 @@ class MakeFacadeTest extends TestCase
     public function test_package_files_are_published_correctly(): void
     {
         $this->artisan('vendor:publish --tag=laravel-facade-config')->execute();
-        $this->assertTrue(File::exists(config_path('laravel-facade.php')));
+        $this->assertTrue(File::exists($this->packageConfigPath));
 
         $this->artisan('vendor:publish --tag=laravel-facade-provider')->execute();
         $this->assertTrue(File::exists($this->getProviderPath()));
@@ -136,8 +134,8 @@ class MakeFacadeTest extends TestCase
     {
         File::deleteDirectory(app_path('Facades'));
         File::delete($this->getProviderPath());
-        $appConfig = File::get(config_path('app.php'));
-        File::put(config_path('app.php'), preg_replace('/App.*'.config('laravel-facade.provider.name').'::class,/', '', $appConfig));
-        File::delete(config_path('laravel-facade.php'));
+        $appConfig = File::get($this->appConfigPath);
+        File::put($this->appConfigPath, preg_replace('/App.*'.config('laravel-facade.provider.name').'::class,/', '', $appConfig));
+        File::delete($this->packageConfigPath);
     }
 }

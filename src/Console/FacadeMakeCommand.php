@@ -5,7 +5,6 @@ namespace Hmones\LaravelFacade\Console;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 
 class FacadeMakeCommand extends GeneratorCommand
 {
@@ -99,7 +98,7 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function createFacade(): bool
     {
         if ($this->alreadyExists($this->getNameInput())) {
-            $this->error($this->type . ' already exists!');
+            $this->error($this->type.' already exists!');
 
             return false;
         }
@@ -243,9 +242,9 @@ class FacadeMakeCommand extends GeneratorCommand
      */
     protected function getProviderPath(): string
     {
-        $name = config('laravel-facade.provider.namespace');
+        $namespace = config('laravel-facade.provider.namespace');
 
-        return str_replace($this->getNamespace($name).'\\', '', $name).'/'.config('laravel-facade.provider.name').'.php';
+        return str_replace($this->getNamespace($namespace).'\\', '', $namespace).'/'.config('laravel-facade.provider.name').'.php';
     }
 
     /**

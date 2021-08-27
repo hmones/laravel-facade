@@ -10,6 +10,8 @@ class TestCase extends Test
     protected $serviceProviderPath;
     protected $serviceProviderClass;
     protected $facadeClassPath;
+    protected $appConfigPath;
+    protected $packageConfigPath;
 
     public function setUp(): void
     {
@@ -17,6 +19,8 @@ class TestCase extends Test
         $this->serviceProviderPath = $this->getProviderPath();
         $this->facadeClassPath = app_path('Facades/TestFacade.php');
         $this->serviceProviderClass = $this->getProviderClass();
+        $this->appConfigPath = config_path('app.php');
+        $this->packageConfigPath = config_path('laravel-facade.php');
         $this->artisan('make:controller Controller')->execute();
     }
 
@@ -26,10 +30,10 @@ class TestCase extends Test
 
         return app_path(
             str_replace(
-                $this->getNamespace($providerDirectory) . '\\',
+                $this->getNamespace($providerDirectory).'\\',
                 '',
                 $providerDirectory
-            ) . '/' . config('laravel-facade.provider.name') . '.php'
+            ).'/'.config('laravel-facade.provider.name').'.php'
         );
     }
 
@@ -40,7 +44,7 @@ class TestCase extends Test
 
     protected function getProviderClass(): string
     {
-        return config('laravel-facade.provider.namespace') . '\\' . config('laravel-facade.provider.name') . '::class';
+        return config('laravel-facade.provider.namespace').'\\'.config('laravel-facade.provider.name').'::class';
     }
 
     protected function getPackageProviders($app)
