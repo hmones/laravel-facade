@@ -23,6 +23,7 @@
         "test": "vendor/bin/phpunit"
     },
     "require": {
+        "php": "^7.4|^8.0",
         "composer-runtime-api": "^2.0",
         "illuminate/support": "~7|~8"
     },

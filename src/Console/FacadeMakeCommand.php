@@ -13,21 +13,21 @@ class FacadeMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected string $stubType = 'class';
+    protected $stubType = 'class';
 
     /**
      * The name of the facade.
      *
      * @var string
      */
-    protected string $facadeName;
+    protected $facadeName;
 
     /**
      * The class to be implemented by the facade.
      *
      * @var string
      */
-    protected string $classPath;
+    protected $classPath;
 
     /**
      * The console command name.
@@ -208,7 +208,7 @@ class FacadeMakeCommand extends GeneratorCommand
             return;
         }
 
-        $pattern = '/(\'providers\'\s*?=>\s*?\[[^]]*)(class?,)(\s*],)/';
+        $pattern = '/(\'providers\'\s*?=>\s*?\[[^]]*)(class,?)(\s*],)/';
         $appConfig = preg_replace($pattern, '$1'."class,\n\t\t$class,\n".'$3', $appConfig);
         $this->files->put(config_path('app.php'), $appConfig);
     }
@@ -222,7 +222,7 @@ class FacadeMakeCommand extends GeneratorCommand
     protected function updateServiceProvider(): void
     {
         $serviceProvider = $this->files->get(app_path($this->getProviderPath()));
-        $namespace = 'App\\'.str_replace('.php', '', str_replace('/', '\\', $this->classPath));
+        $namespace = 'App\\\\'.str_replace('.php', '', str_replace('/', '\\\\', $this->classPath));
 
         if (preg_match("/$namespace/", $serviceProvider)) {
             return;
