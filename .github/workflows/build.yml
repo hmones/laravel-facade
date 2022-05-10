@@ -6,8 +6,8 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 jobs:
-  unitTest7.4:
-    name: Unit Test PHP 7.4
+  unitTest7:
+    name: Unit Test PHP 7
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,8 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  unitTest8.0:
-    name: Unit Test PHP 8.0
+  unitTest8:
+    name: Unit Test PHP 8
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
