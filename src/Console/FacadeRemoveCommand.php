@@ -47,6 +47,7 @@ class FacadeRemoveCommand extends Command
      * Execute the console command.
      *
      * @return void
+     *
      * @throws FileNotFoundException
      */
     public function handle(): void

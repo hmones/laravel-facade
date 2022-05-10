@@ -54,6 +54,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Execute the console command.
      *
      * @return void
+     *
      * @throws FileNotFoundException
      */
     public function handle(): void
@@ -93,6 +94,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Create the Facade file if it doesn't exist.
      *
      * @return bool
+     *
      * @throws FileNotFoundException
      */
     protected function createFacade(): bool
@@ -116,9 +118,10 @@ class FacadeMakeCommand extends GeneratorCommand
     /**
      * Build the class with the given name.
      *
-     * @param string $className
-     * @param string $nameSpace
+     * @param  string  $className
+     * @param  string  $nameSpace
      * @return string
+     *
      * @throws FileNotFoundException
      */
     protected function generateStub(string $className, string $nameSpace): string
@@ -147,8 +150,8 @@ class FacadeMakeCommand extends GeneratorCommand
     /**
      * Replace the namespace of the implemented class for the given stub.
      *
-     * @param string $stub
-     * @param string $name
+     * @param  string  $stub
+     * @param  string  $name
      * @return string
      */
     protected function replaceImplementedClass(string $stub, string $name): string
@@ -163,8 +166,8 @@ class FacadeMakeCommand extends GeneratorCommand
     /**
      * Replace the facade name for the given stub.
      *
-     * @param string $stub
-     * @param string $name
+     * @param  string  $stub
+     * @param  string  $name
      * @return string
      */
     protected function replaceFacadeName(string $stub, string $name): string
@@ -180,6 +183,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Configure Laravel Facade.
      *
      * @return void
+     *
      * @throws FileNotFoundException
      */
     protected function configureFacade(): void
@@ -195,6 +199,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Update the app configuration file to include the service provider.
      *
      * @return void
+     *
      * @throws FileNotFoundException
      */
     protected function updateAppConfig(): void
@@ -217,6 +222,7 @@ class FacadeMakeCommand extends GeneratorCommand
      * Update service provider by instantiating the implementation class.
      *
      * @return void
+     *
      * @throws FileNotFoundException
      */
     protected function updateServiceProvider(): void
