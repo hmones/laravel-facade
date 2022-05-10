@@ -44,6 +44,6 @@ jobs:
           extensions: dom, curl, libxml, mbstring, redis, zip
           coverage: none
       - name: Install dependencies
-        run: composer update illuminate/support:^9.0 --prefer-dist --no-interaction --no-progress
+        run: composer update illuminate/support:^9.0 --with-all-dependencies --prefer-dist --no-interaction --no-progress
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
