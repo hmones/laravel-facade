@@ -44,8 +44,6 @@ jobs:
           extensions: dom, curl, libxml, mbstring, redis, zip
           coverage: none
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
-      - name: Install laravel 9
-        run: composer require illuminate/support:^9.0 --prefer-dist --no-interaction --no-progress
+        run: composer update illuminate/support:^9.0 --prefer-dist --no-interaction --no-progress
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
